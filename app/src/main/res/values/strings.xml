@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AndroidTestTool</string>
+    <string name="title_activity_test_poi_excel">TestPoiExcelActivity</string>
 </resources>

@@ -2,12 +2,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.test">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.android.test" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Instrument：引入测试库,增加引用android.test.runner的声明================= -->
+        <uses-library android:name="android.test.runner" />
+
+        <!-- 主界面：=============================================================== -->
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -15,6 +29,54 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 测试文件：=============================================================== -->
+        <activity
+            android:name=".data.file.TestPoiExcelActivity"
+            android:label="@string/title_activity_test_poi_excel"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".data.file.TestFileActivity" />
+
+        <!-- 测试UIAutomator：=============================================================== -->
+        <activity android:name=".uiautomator.TestUIAutomatorActivity" />
+
+        <!-- 测试ListView：=============================================================== -->
+        <activity android:name=".view.listview.pulltorefersh.TestPullToRefershListViewActivity" />
+
+        <!-- 测试AIDL：=============================================================== -->
+        <service
+            android:name=".aidl.PlayerService"
+            android:process=":remote">
+            <intent-filter android:priority="1000">
+                <action android:name="com.android.test.aidl.PlayerService" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".aidl.TestAIDLActivity" />
+
+        <!-- 测试守护进程：=============================================================== -->
+        <service
+            android:name=".service.guard.GuardService"
+            android:enabled="true"
+            android:exported="true"
+            android:process="guard.GuardService">
+            <intent-filter android:priority="1000">
+                <action android:name="com.android.test.service.guard.GuardService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".service.guard.LocalWorkService"
+            android:enabled="true"
+            android:exported="true"
+            android:process="guard.LocalWorkService">
+            <intent-filter android:priority="1000">
+                <action android:name="com.android.test.service.guard.LocalWorkService" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".service.guard.TestGuardServiceActivity" />
+        <activity android:name=".instrument.TestInstrumentActivity" />
+        <activity android:name=".log.TestLogToolActivity"></activity>
     </application>
 
 </manifest>
