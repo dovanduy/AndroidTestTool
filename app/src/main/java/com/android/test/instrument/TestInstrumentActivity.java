@@ -29,7 +29,7 @@ public class TestInstrumentActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                String cmd = "am instrument -w -e class com.android.test.instrument.MyInstrumaentTestCase com.android.test/android.test.InstrumentationTestRunner";
+                                String cmd = "am instrument -e class com.android.test.instrument.MyInstrumaentTestCase com.android.test/android.test.InstrumentationTestRunner";
                                 UMVirtualTerminal umVirtualTerminal = null;
                                 try {
                                     umVirtualTerminal = new UMVirtualTerminal();

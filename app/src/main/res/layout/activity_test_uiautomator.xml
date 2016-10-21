@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.android.test.uiautomator.TestUIAutomatorActivity">
+    tools:context="com.android.test.uiautomator.view.TestUIAutomatorActivity">
 
     <LinearLayout
         android:orientation="vertical"
@@ -49,6 +49,12 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:id="@+id/textView_state" />
         </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="生成报告文件"
+            android:id="@+id/but_make_report" />
     </LinearLayout>
 
 </RelativeLayout>

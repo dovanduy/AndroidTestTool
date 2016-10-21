@@ -3,22 +3,18 @@ package com.android.test;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.android.test.aidl.TestAIDLActivity;
 import com.android.test.data.file.TestFileActivity;
 import com.android.test.instrument.TestInstrumentActivity;
 import com.android.test.log.TestLogToolActivity;
 import com.android.test.service.guard.TestGuardServiceActivity;
-import com.android.test.uiautomator.TestUIAutomatorActivity;
-import com.android.test.uiautomator.UIAutomatorTool;
+import com.android.test.uiautomator.view.TestUIAutomatorActivity;
 import com.android.test.view.listview.pulltorefersh.TestPullToRefershListViewActivity;
 
 public class MainActivity extends AppCompatActivity {

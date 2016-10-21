@@ -19,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,67 +42,91 @@ public class UIAutomatorTool {
     private static Timer collectionTimer;
     private static Timer environmentTimer;
     //状态信息：
-    private static Date lastCollectDate;
     public static boolean isStateChanged = false;
+    //保持线程活跃相关：
+    public static boolean needKeepRunning = false;
+    private static Timer keepRunningTimer;
 
     /**
      * 开启采集线程
      * @return
      */
     public static void startCollection( final Handler uiHandler){
-
         LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"startCollection----------------------------");
+        needKeepRunning = true;
         new Thread(){
             @Override
             public void run() {
-                //检测运行环境
-                if (checkEnvironment()==false){
-                    return ;
-                }
-                //如果线程在运行，则停止
-                if(isRun()){
-                    stopCollection();
-                }
-                //赋值属性
-                UIAutomatorTool.uiHandler = uiHandler;
-                //开启当前采集线程
-                if (collectionHandlerThread==null){
-                    collectionHandlerThread = new HandlerThread("UIAutomator");
-                    collectionHandlerThread.start();
-                }
-                //初始化handler
-                collectionHandler = new CollectionHandler(collectionHandlerThread.getLooper());
-                //初始化Timer,开启timer,立刻执行，周期3秒
-                collectionTimer = new Timer();
-                collectionTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        try{
-                            Message msg = collectionHandler.obtainMessage(CollectionHandler.MSG_COLLECT, "");
-                            collectionHandler.sendMessage(msg);
-                        }catch (Exception e){
-                            //防止任务停止，指针为空
-                            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"任务停止，指针为空");
-                        }
+                try {
+                    //检测运行环境
+                    if (checkEnvironment()==false){
+                        return ;
+                    }
+                    //如果线程在运行，则停止
+                    if(isRun()){
+                        UIAutomatorTool.stop();
+                    }
+                    //赋值属性
+                    UIAutomatorTool.uiHandler = uiHandler;
+                    //开启当前采集线程
+                    if (collectionHandlerThread==null){
+                        collectionHandlerThread = new HandlerThread("UIAutomator");
+                        collectionHandlerThread.start();
+                    }
+                    //初始化handler
+                    collectionHandler = new CollectionHandler(collectionHandlerThread.getLooper());
+                    //初始化Timer,开启timer,立刻执行，周期3秒
+                    collectionTimer = new Timer();
+                    collectionTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            try{
+                                Message msg = collectionHandler.obtainMessage(CollectionHandler.MSG_COLLECT, "");
+                                collectionHandler.sendMessage(msg);
+                            }catch (Exception e){
+                                //防止任务停止，指针为空
+                                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"任务停止，指针为空");
+                            }
 
-                    }
-                }, 0, 3000);
-                //开启环境监测timer,开启timer,立刻执行，周期30秒
-                environmentTimer = new Timer();
-                environmentTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (!checkEnvironment()){
-                            sendMessageToUI("环境不可用，服务停止！");
-                            stopCollection();
                         }
-                    }
-                }, 0, 30000);
-                sendMessageToUI("任务开始！");
-                UIAutomatorTool.isStateChanged = true;
+                    }, 0, 3000);
+                    //开启环境监测timer,开启timer,立刻执行，周期30秒
+                    environmentTimer = new Timer();
+                    environmentTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (!checkEnvironment()){
+                                sendMessageToUI(Constant.HANDLER_UIAUTOMATOR,"环境不可用，服务停止！");
+                                UIAutomatorTool.stop();
+                            }
+                        }
+                    }, 0, 30000);
+                    sendMessageToUI(Constant.HANDLER_UIAUTOMATOR_START,"任务开始！");
+                    UIAutomatorTool.isStateChanged = true;
+                }catch (Throwable e){
+                    e.printStackTrace();
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"11111,e="+e.getMessage());
+                }
+
             }
         }.start();
-
+        //保护线程开启：
+        Timer tempTimer = keepRunningTimer;
+        keepRunningTimer = new Timer();
+        keepRunningTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (UIAutomatorTool.needKeepRunning&&!isRun()&&uiHandler!=null){
+                    UIAutomatorTool.stop();
+                    startCollection(uiHandler);
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+                }
+            }
+        },10000,10000);
+        if (tempTimer!=null){
+            tempTimer.cancel();
+            tempTimer = null;
+        }
     }
 
 
@@ -116,7 +139,11 @@ public class UIAutomatorTool {
                 ||collectionHandler==null
                 ||environmentTimer==null
                 ||collectionTimer==null){
-            stopCollection();
+            if (collectionHandlerThread==null)LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"collectionHandlerThread为空");
+            if (collectionHandler==null)LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"collectionHandler为空");
+            if (environmentTimer==null)LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"environmentTimer为空");
+            if (collectionTimer==null)LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"collectionTimer为空");
+            UIAutomatorTool.stop();
             return false;
         }
         return true;
@@ -127,6 +154,10 @@ public class UIAutomatorTool {
      * @return
      */
     public static String stopCollection(){
+        needKeepRunning = false;
+        return stop();
+    }
+    private static String stop(){
         LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"stopCollection----------------------");
         if (collectionTimer==null){
             return "notExist";
@@ -146,8 +177,8 @@ public class UIAutomatorTool {
                 environmentTimer.cancel();
                 environmentTimer = null;
             }
-            lastCollectDate = null;
             UIAutomatorTool.isStateChanged = true;
+            sendMessageToUI(Constant.HANDLER_UIAUTOMATOR_STOP,"任务结束");
             return "success";
         }
     }
@@ -161,22 +192,22 @@ public class UIAutomatorTool {
      * @return
      */
     public static boolean checkEnvironment(){
-        //检测shell代理
-        try {
-            UMVirtualTerminal umVirtualTerminal = new UMVirtualTerminal();
-        } catch (IOException | InterruptedException e) {
-            sendMessageToUI("shell代理未开启,请手动运行脚本开启！");
-            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"shell代理未开启,请手动运行脚本开启！");
-            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
-            return false;
-        }
+//        //检测shell代理
+//        try {
+//            UMVirtualTerminal umVirtualTerminal = new UMVirtualTerminal();
+//        } catch (IOException | InterruptedException e) {
+//            sendMessageToUI(Constant.HANDLER_UIAUTOMATOR,"shell代理未开启,请手动运行脚本开启！");
+//            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"shell代理未开启,请手动运行脚本开启！");
+//            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
+//            return false;
+//        }
         //检测数据存储路径
         File uiautomatorTempDir = new File(Constant.UIAUTOMATOR_PATH);
         if (!uiautomatorTempDir.exists()){
             uiautomatorTempDir.mkdirs();
         }
         if (!uiautomatorTempDir.exists()){
-            sendMessageToUI("文件保存路径不可用！");
+            sendMessageToUI(Constant.HANDLER_UIAUTOMATOR,"文件保存路径不可用！");
             LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"文件保存路径不可用！");
             return false;
         }
@@ -187,9 +218,9 @@ public class UIAutomatorTool {
      * 发送消息给UI线程
      * @param msgString
      */
-    private static void sendMessageToUI(String msgString){
+    private static void sendMessageToUI(int what,String msgString){
         if (uiHandler!=null){
-            Message message = Message.obtain(uiHandler,Constant.HANDLER_UIAUTOMATOR,msgString);
+            Message message = Message.obtain(uiHandler,what,msgString);
             uiHandler.sendMessage(message);
         }
     }
@@ -231,6 +262,7 @@ public class UIAutomatorTool {
         @Override
         public void handleMessage(Message msg) {
             if (msg==null)return;
+
             switch (msg.what){
                 case MSG_COLLECT:
                     //采集一次数据
@@ -246,94 +278,116 @@ public class UIAutomatorTool {
          * 采集一次数据
          */
         void collect(){
-            //保存当前采集时间：
-            Date nowCollectDate = new Date(System.currentTimeMillis());
-            if (lastCollectDate!=null&&nowCollectDate.getTime()-lastCollectDate.getTime()>1000*60){
-                //如果超过一分钟没采集，则关闭线程。
-                stopCollection();
-            }else {
-                lastCollectDate = new Date(System.currentTimeMillis());
-            }
-
-            //执行获取控件树命令
-            UMVirtualTerminal umVirtualTerminal = null;
             try {
-                umVirtualTerminal = new UMVirtualTerminal();
-                VTCommandResult vtCommandResult = umVirtualTerminal.runCommand(String.format("uiautomator dump %s",Constant.UIAutomatorViewFilePath));
-                if (vtCommandResult != null&&vtCommandResult.success()){
-                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"拉取控件树数据成功！");
-                    //执行命令获取当前包名
-                    String packageName = "";
-                    try{
-                        vtCommandResult = umVirtualTerminal.runCommand("dumpsys activity | grep \"mFocusedActivity\"");
-                        if (vtCommandResult != null&&vtCommandResult.success()){
-                            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"当前顶层Activity信息："+vtCommandResult.stdout);
-                            String[] s1 = vtCommandResult.stdout.split("/");
-                            if (s1.length>0){
-                                String sLeft = s1[0];
-                                String[] s2  = sLeft.split(" ");
-                                if (s2.length>0){
-                                    packageName = s2[s2.length-1];
+//                //保存当前采集时间：
+//                Date nowCollectDate = new Date(System.currentTimeMillis());
+//                if (lastCollectDate!=null&&nowCollectDate.getTime()-lastCollectDate.getTime()>1000*60){
+//                    //如果超过一分钟没采集，则关闭线程。
+//                    stopCollection();
+//                }else {
+//                    lastCollectDate = new Date(System.currentTimeMillis());
+//                }
+
+                //执行获取控件树命令
+                UMVirtualTerminal umVirtualTerminal = null;
+                try {
+                    umVirtualTerminal = new UMVirtualTerminal();
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,String.format("uiautomator dump %s",Constant.UIAutomatorViewFilePath));
+                    VTCommandResult vtCommandResult = umVirtualTerminal.runCommand(String.format("uiautomator dump %s",Constant.UIAutomatorViewFilePath));
+                    if (vtCommandResult != null&&vtCommandResult.success()){
+                        LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"拉取控件树数据成功！");
+                        //执行命令获取当前包名
+                        String packageName = "";
+                        try{
+                            vtCommandResult = umVirtualTerminal.runCommand("dumpsys activity | grep \"mFocusedActivity\"");
+                            if (vtCommandResult != null&&vtCommandResult.success()){
+                                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"当前顶层Activity信息："+vtCommandResult.stdout);
+                                String[] s1 = vtCommandResult.stdout.split("/");
+                                if (s1.length>0){
+                                    String sLeft = s1[0];
+                                    String[] s2  = sLeft.split(" ");
+                                    if (s2.length>0){
+                                        packageName = s2[s2.length-1];
+                                    }
                                 }
                             }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
+                            packageName = "";
                         }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
-                        packageName = "";
+                        //分析xml控件树文件,并记录数据
+                        SaveXMLFileData(packageName,Constant.UIAutomatorViewFilePath);
+                    }else {
+                        LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"未得到命令结果！");
                     }
-                    AnalysisXMLFileToData(packageName,Constant.UIAutomatorViewFilePath);
-                }else {
-                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"未得到命令结果！");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
+                }finally {
+                    if (umVirtualTerminal!=null){
+                        umVirtualTerminal.shutdown();
+                    }
                 }
-            } catch (Exception e) {
+            }catch (Throwable e){
                 e.printStackTrace();
-                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
-            }finally {
-                if (umVirtualTerminal!=null){
-                    umVirtualTerminal.shutdown();
-                }
+                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"throwable" + e.getMessage());
             }
 
         }
+
+
         /**
-         * 分析xml控件树文件
+         * 分析xml控件树文件,并记录数据
          */
-        void AnalysisXMLFileToData(String packageName , String xmlFileName){
-            File xmlFile = new File(xmlFileName);
-            String hashValue = "";
-            if (xmlFile.exists()){
-                hashValue = getHashOfXML(xmlFile);
-            }
-            String  data = packageName+"_"+hashValue;
-            //写入数据文件(包名+xml文件hash值)
+        void SaveXMLFileData(String packageName , String xmlFileName){
             try{
-                xmlFile.delete();
-            }catch (Exception e){
-                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
-            }
-            //写入磁盘
-            try {
-                dataSaveFileWriter.write(data);
-                dataSaveFileWriter.write(System.getProperty("line.separator"));
-                dataSaveFileWriter.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
-            }
+
+                File xmlFile = new File(xmlFileName);
+                String hashValue = "";
+                if (xmlFile.exists()){
+                    hashValue = getHashOfXML(xmlFile);
+                }
+                String nowTime = ""+System.currentTimeMillis();
+                String  data = nowTime+"_"+packageName+"_"+hashValue;
+                //写入数据文件(包名+xml文件hash值)
+                try{
+                    xmlFile.delete();
+                }catch (Exception e){
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
+                }
+                //写入磁盘
+                try {
+                    dataSaveFileWriter.write(data);
+                    dataSaveFileWriter.write(System.getProperty("line.separator"));
+                    dataSaveFileWriter.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
+                }
+            }catch (Throwable e){
+            e.printStackTrace();
+            LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"throwable" + e.getMessage());
+        }
         }
 
         void close(){
-            //关闭输入输出流
-            try {
-                if (dataSaveFileOutputStream != null)
-                    dataSaveFileOutputStream.close();
-                if (dataSaveFileWriter != null)
-                    dataSaveFileWriter.close();
-            } catch (IOException e) {
+            try{
+
+                //关闭输入输出流
+                try {
+                    if (dataSaveFileOutputStream != null)
+                        dataSaveFileOutputStream.close();
+                    if (dataSaveFileWriter != null)
+                        dataSaveFileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"正在执行close函数，发生异常");
+                    LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
+                }
+            }catch (Throwable e){
                 e.printStackTrace();
-                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"正在执行close函数，发生异常");
-                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,e.getMessage());
+                LogTool.makeLog(LogTool.LEVEL.Level_e,TAG,"throwable" + e.getMessage());
             }
         }
 

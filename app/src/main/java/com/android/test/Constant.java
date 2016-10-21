@@ -14,7 +14,7 @@ public class Constant {
 
     /** 全局： **/
     public static final String APP_PATH = Environment.getExternalStorageDirectory() + File.separator + "AndroidTestTool";
-    public static final String APP_PATH_SHELL = "/sdcard";
+    public static final String APP_PATH_SHELL = "/sdcard"+ File.separator + "AndroidTestTool";
     static {
         String[] paths = {
                 "/sdcard",
@@ -23,7 +23,7 @@ public class Constant {
         for (int i = 0;i<paths.length;i++){
             File file = new File(paths[i]);
             if (file.exists()){
-                UIAUTOMATOR_PATH_SHELL = paths[i];
+                UIAUTOMATOR_PATH_SHELL = paths[i]+ File.separator + "AndroidTestTool";
             }
         }
     }
@@ -31,6 +31,7 @@ public class Constant {
     /** 模块1--Handler: **/
     public static final int HANDLER_UIAUTOMATOR = 101;//UIAutomator标记
     public static final int HANDLER_UIAUTOMATOR_START = 102;//UIAutomator标记--开始
+    public static final int HANDLER_UIAUTOMATOR_STOP = 103;//UIAutomator标记--开始
 
     /** 模块2--LogTool: **/
     //目录

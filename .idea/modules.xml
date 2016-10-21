@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidTestTool.iml" filepath="$PROJECT_DIR$/AndroidTestTool.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/module_pulltorefresh/module_pulltorefresh.iml" filepath="$PROJECT_DIR$/module_pulltorefresh/module_pulltorefresh.iml" />
     </modules>
   </component>
 </project>

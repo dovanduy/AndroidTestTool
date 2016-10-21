@@ -38,7 +38,7 @@
         <activity android:name=".data.file.TestFileActivity" />
 
         <!-- 测试UIAutomator：=============================================================== -->
-        <activity android:name=".uiautomator.TestUIAutomatorActivity" />
+        <activity android:name=".uiautomator.view.TestUIAutomatorActivity" />
 
         <!-- 测试ListView：=============================================================== -->
         <activity android:name=".view.listview.pulltorefersh.TestPullToRefershListViewActivity" />
