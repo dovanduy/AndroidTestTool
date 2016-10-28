@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ssss"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/contentPanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/demand_id_TV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="需求ID：57c912c367f3560057af7693"/>
+
+            <TextView
+                android:id="@+id/demand_name_TV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="需求名称：兼容BUG检验测试"/>
+            <TextView
+                android:id="@+id/project_name_TV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="项目名称：手机管家"/>
+            <TextView
+                android:id="@+id/project_version_TV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="项目版本：1.0"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0">
+
+            <Button
+                android:text="结束任务"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ssss">
+
+        <ProgressBar
+            android:id="@+id/demand_state_PB"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/demand_state_TV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="当前状态"
+            android:layout_weight="0" />
+    </LinearLayout>
+
+</RelativeLayout>

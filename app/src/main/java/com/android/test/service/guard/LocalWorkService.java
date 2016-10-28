@@ -14,6 +14,7 @@ import android.os.RemoteException;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.android.test.Constant;
 import com.android.test.MainActivity;
 import com.android.test.R;
 
@@ -23,6 +24,7 @@ import com.android.test.R;
  */
 
 public class LocalWorkService extends Service {
+
 
 
     private static LocalWorkBinder binder;//本Service的binder
@@ -59,7 +61,7 @@ public class LocalWorkService extends Service {
             notification = builder.build();
             //设置通知默认效果
             notification.flags=Notification.FLAG_SHOW_LIGHTS;
-            startForeground(1,notification);
+            startForeground(Constant.Notifi_LocalWorkService,notification);
         }
     }
 
@@ -100,6 +102,11 @@ public class LocalWorkService extends Service {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopForeground( true);
+    }
 
     //守护进程相关：-------------------------------------------------------------------------------------
 

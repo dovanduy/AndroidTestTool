@@ -1,6 +1,7 @@
 package com.android.test;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Context;
 import android.os.Environment;
 
@@ -74,6 +75,17 @@ public class Constant {
             }
         }
     }
+
+
+    /** Notification ID**/
+    public static int Notifi_GuardService = 1011;
+    public static int Notifi_LocalWorkService = 1021;
+    public static int Notifi_ForegroundService = 1031;
+    public static int Notifi_PlayerService = 1041;
+
+
+
+
 
 
 }

@@ -1,0 +1,9 @@
+
+
+发布apk的签名设置：
+
+jks:/jks/AndroidTestTool.jks
+password：elvis123456
+
+alias：elvis
+password：elvis123456

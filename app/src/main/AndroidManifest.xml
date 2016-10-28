@@ -2,11 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.test">
 
+    <!-- 权限：网络请求 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 权限：文件读写 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <!-- 权限： ACCESSIBILITY_SERVICE -->
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
 
+    <!-- 声明： instrumentation -->
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
         android:targetPackage="com.android.test" />
@@ -43,7 +48,7 @@
         <!-- 测试ListView：=============================================================== -->
         <activity android:name=".view.listview.pulltorefersh.TestPullToRefershListViewActivity" />
 
-        <!-- 测试AIDL：=============================================================== -->
+        <!-- 测试AIDL：建议在前台Service中开启远程Service ============================= -->
         <service
             android:name=".aidl.PlayerService"
             android:process=":remote">
@@ -75,8 +80,35 @@
         </service>
 
         <activity android:name=".service.guard.TestGuardServiceActivity" />
+
+        <!-- 测试 ForegroundService：=============================================== -->
+        <service android:name=".service.foreground.ForegroundService" />
+
+        <!-- 测试 instrument：=============================================== -->
         <activity android:name=".instrument.TestInstrumentActivity" />
-        <activity android:name=".log.TestLogToolActivity"></activity>
+
+        <!-- 测试 LogTool：=============================================== -->
+        <activity android:name=".log.TestLogToolActivity" />
+
+        <!-- 测试 ExpandableListViewActivity：=============================================== -->
+        <activity android:name=".view.listview.expandable.TestExpandableListViewActivity" />
+
+        <!-- 测试 AccessibilitySeivice：=============================================================== -->
+        <service
+            android:name=".accessibility.MyAccessibilityService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/myaccessibilityservice" />
+        </service>
+
+        <activity android:name=".view.listview.xlistview.TestXListViewActivity"></activity>
     </application>
 
 </manifest>

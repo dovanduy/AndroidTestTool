@@ -54,6 +54,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/but_log_tool" />
+        <Button
+            android:text="测试 ExpandableListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/but_expandable_list" />
+        <Button
+            android:text="测试 ForegroundService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/but_Foreground_service" />
+
 
     </LinearLayout>
 

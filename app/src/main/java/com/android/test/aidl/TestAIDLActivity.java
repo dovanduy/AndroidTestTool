@@ -12,7 +12,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.android.test.MainActivity;
 import com.android.test.R;
+import com.android.test.service.foreground.ForegroundService;
 
 public class TestAIDLActivity extends AppCompatActivity {
 
@@ -30,7 +32,6 @@ public class TestAIDLActivity extends AppCompatActivity {
         Intent loaclServiceIntent = new Intent();
         loaclServiceIntent.setAction("com.android.test.aidl.PlayerService");//你定义的service的action
         loaclServiceIntent.setPackage(getPackageName());
-
         this.bindService(loaclServiceIntent, serviceCon, Service.BIND_AUTO_CREATE);
 
         //设置监听器--

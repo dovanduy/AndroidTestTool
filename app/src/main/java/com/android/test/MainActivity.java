@@ -13,9 +13,11 @@ import com.android.test.aidl.TestAIDLActivity;
 import com.android.test.data.file.TestFileActivity;
 import com.android.test.instrument.TestInstrumentActivity;
 import com.android.test.log.TestLogToolActivity;
+import com.android.test.service.foreground.ForegroundService;
 import com.android.test.service.guard.TestGuardServiceActivity;
 import com.android.test.uiautomator.view.TestUIAutomatorActivity;
 import com.android.test.view.listview.pulltorefersh.TestPullToRefershListViewActivity;
+import com.android.test.view.listview.expandable.TestExpandableListViewActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,6 +78,14 @@ public class MainActivity extends AppCompatActivity {
                         intent.setClass(MainActivity.this, TestLogToolActivity.class);
                         startActivity(intent);
                         break;
+                    case R.id.but_expandable_list:
+                        intent.setClass(MainActivity.this, TestExpandableListViewActivity.class);
+                        startActivity(intent);
+                        break;
+                    case R.id.but_Foreground_service:
+                        Intent serverIntent  = new Intent(MainActivity.this, ForegroundService.class);
+                        startService(serverIntent);
+                        break;
                 }
             }
         };
@@ -101,8 +111,12 @@ public class MainActivity extends AppCompatActivity {
         //测试 LogTool
         Button logToolButton = (Button) findViewById(R.id.but_log_tool);
         logToolButton.setOnClickListener(myOnClickListener);
-
-
+        //测试 ExpandableListView
+        Button expandableListViewButton = (Button) findViewById(R.id.but_expandable_list);
+        expandableListViewButton.setOnClickListener(myOnClickListener);
+        //测试 ForegroundService
+        Button foregroundServiceButton = (Button) findViewById(R.id.but_Foreground_service);
+        foregroundServiceButton.setOnClickListener(myOnClickListener);
 
     }
 }

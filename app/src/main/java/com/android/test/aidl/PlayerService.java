@@ -10,6 +10,7 @@ import android.os.RemoteException;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.android.test.Constant;
 import com.android.test.MainActivity;
 import com.android.test.R;
 
@@ -18,6 +19,7 @@ import com.android.test.R;
  */
 
 public class PlayerService extends Service{
+
 
 
     //属性：
@@ -103,14 +105,19 @@ public class PlayerService extends Service{
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
             builder.setContentIntent(contentIntent);
             builder.setSmallIcon(R.mipmap.ic_launcher);
-            builder.setTicker("Foreground Service Start");
-            builder.setContentTitle("DeviceManger");
-            builder.setContentText("后台检测程序正在运行....");
+            builder.setTicker("PlayerService Start");
+            builder.setContentTitle("AndroidTestTool 测试AIDL");
+            builder.setContentText("后台测试Service正在运行....");
             notification = builder.build();
             //设置通知默认效果
             notification.flags=Notification.FLAG_SHOW_LIGHTS;
-            startForeground(1,notification);
+            startForeground(Constant.Notifi_PlayerService,notification);
         }
+
+
+
+
+
 
 
 

@@ -1,13 +1,20 @@
 package com.android.test.service.guard;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.android.test.Constant;
+import com.android.test.MainActivity;
+import com.android.test.R;
 
 
 /**
@@ -33,9 +40,32 @@ public class GuardService extends Service {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onCreate() {
         super.onCreate();
+        //前台Service
+        Notification.Builder builder = null;
+        Notification notification = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+            builder = new Notification.Builder(this);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+            builder.setContentIntent(contentIntent);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            builder.setTicker("守护进程已开启");
+            builder.setContentTitle("GuardService");
+            builder.setContentText("守护进程正在运行....");
+            notification = builder.build();
+            //设置通知默认效果
+            notification.flags=Notification.FLAG_SHOW_LIGHTS;
+            startForeground(Constant.Notifi_GuardService,notification);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopForeground( true);
     }
 
     /**
@@ -48,7 +78,6 @@ public class GuardService extends Service {
         needGuard = true;
         return binder;
     }
-
 
 
     /**
